@@ -3,6 +3,7 @@
 from offload.srv import *
 import rospy
 from time import time
+import socket
 
 def fib(n):
    if n == 1:
@@ -20,8 +21,8 @@ def handle_fib(req):
     return FibSolverResponse(result)
 
 def fib_server():
-    rospy.init_node('fib_server')
-    s = rospy.Service('fib_solver', FibSolver, handle_fib)
+    rospy.init_node('fib_server_' + socket.gethostname())
+    s = rospy.Service('fib_solver_' + socket.gethostname(), FibSolver, handle_fib)
     print "Ready to calculate fib."
     rospy.spin()
 
