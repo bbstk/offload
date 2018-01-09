@@ -163,6 +163,7 @@ include_directories(
 install(PROGRAMS
   scripts/fibonacci_server.py
   scripts/fibonacci_client.py
+  scripts/fibonacci_action_server.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
