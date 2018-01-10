@@ -7,6 +7,8 @@ import actionlib
 
 import offload.msg
 
+import socket
+
 class FibonacciAction(object):
     # create messages that are used to publish feedback/result
     # _feedback = offload.msg.FibonacciFeedback()

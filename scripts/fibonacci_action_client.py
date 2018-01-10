@@ -2,6 +2,7 @@
 from __future__ import print_function
 import rospy
 import sys
+import socket
 
 import actionlib
 from actionlib_msgs.msg import *
