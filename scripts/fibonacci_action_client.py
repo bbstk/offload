@@ -103,6 +103,6 @@ if __name__ == '__main__':
         else:
             print (usage())
             sys.exit(1)
-        print("Result:", ', '.join([str(n) for n in result.sequence]))
+        print("Result: ", result.result)
     except rospy.ROSInterruptException:
         print("program interrupted before completion", file=sys.stderr)
