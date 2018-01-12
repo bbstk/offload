@@ -22,18 +22,18 @@ class FibonacciAction(object):
     def goal_cb(self, goalHandle):
         goalHandle.set_accepted()
         rospy.loginfo("Accepted new goal")
-        def updateStatus(sequence):
+        def updateStatus(orderNumber):
             feedback = offload.msg.FibonacciActionFeedback()
             #rospy.loginfo("Attributes: %s", vars(feedback))
-            feedback.feedback = sequence
+            feedback.currentOrder = orderNumber
             goalHandle.publish_feedback(feedback)
         
-        def completed(sequence):
+        def completed(finalResult):
             status = goalHandle.get_goal_status().status
             #updateStatus(sequence)
 
             result = offload.msg.FibonacciResult()
-            result.sequence = sequence
+            result.result = finalResult
 
             if status == actionlib.GoalStatus.ACTIVE:
                 goalHandle.set_succeeded(result)
@@ -44,65 +44,19 @@ class FibonacciAction(object):
         
         def calculateFibonacci(goalHandle, statusCB, doneCB):
             goal = goalHandle.get_goal()
-            sequence = []
-            sequence.append(0)
-            sequence.append(1)
-            rospy.loginfo('%s: Executing, creating fibonacci sequence of order %i with seeds %i, %i' % (self._action_name, goal.order, sequence[0], sequence[1]))
-            
-            r = rospy.Rate(2)
+            rospy.loginfo('%s: Executing, creating fibonacci sequence of order %i' % (self._action_name, goal.order))
+            # Return the result from the recursive fib() function
+            doneCB(fib(goal.order))
 
-            for i in range(1, goal.order):
-                # check that preempt has not been requested by the client
-                # status = goalHandle.get_goal_status().status
-                # if status == actionlib.GoalStatus.PREEMPTED:
-                #     do something
-                
-                sequence.append(sequence[i] + sequence[i-1])
-                
-                # publish the feedback
-                
-                # this step is not necessary, the sequence is computed at 1 Hz for demonstration purposes
-                r.sleep()
+        def fib(n):
+           if n == 1:
+              return 1
+           elif n == 0:
+              return 0
+           else:
+              return fib(n-1) + fib(n-2)
 
-            doneCB(sequence)
-
-        Thread(target=calculateFibonacci, args=(goalHandle, updateStatus, completed)).start()
-  
-
-
-
-
-
-        # # helper variables
-        # r = rospy.Rate(1)
-        # success = True
-        
-        # # append the seeds for the fibonacci sequence
-        # self._feedback.sequence = []
-        # self._feedback.sequence.append(0)
-        # self._feedback.sequence.append(1)
-        
-        # # publish info to the console for the user
-        # rospy.loginfo('%s: Executing, creating fibonacci sequence of order %i with seeds %i, %i' % (self._action_name, goal.order, self._feedback.sequence[0], self._feedback.sequence[1]))
-        
-        # # start executing the action
-        # for i in range(1, goal.order):
-        #     # check that preempt has not been requested by the client
-        #     if self._as.is_preempt_requested():
-        #         rospy.loginfo('%s: Preempted' % self._action_name)
-        #         self._as.set_preempted()
-        #         success = False
-        #         break
-        #     self._feedback.sequence.append(self._feedback.sequence[i] + self._feedback.sequence[i-1])
-        #     # publish the feedback
-        #     self._as.publish_feedback(self._feedback)
-        #     # this step is not necessary, the sequence is computed at 1 Hz for demonstration purposes
-        #     r.sleep()
-          
-        # if success:
-        #     self._result.sequence = self._feedback.sequence
-        #     rospy.loginfo('%s: Succeeded' % self._action_name)
-        #     self._as.set_succeeded(self._result)
+        Thread(target=calculateFibonacci, args=(goalHandle, updateStatus, completed)).start()  
     
 if __name__ == '__main__':
     #rospy.init_node('fibonacci')

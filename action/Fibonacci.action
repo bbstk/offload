@@ -2,7 +2,7 @@
 int32 order
 ---
 #result definition
-int32[] sequence
+int32 result
 ---
 #feedback
-int32[] sequence
+int32 currentOrder
