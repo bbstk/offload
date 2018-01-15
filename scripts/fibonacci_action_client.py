@@ -40,7 +40,8 @@ def fibonacci_client_single_server(n, repetitions):
         rospy.loginfo("handlers[%d].status == %s", i, status)
         while status != GoalStatus.SUCCEEDED:
             rospy.sleep(0.2)
-            continue
+            status = handlers[i].get_goal_status()
+            rospy.loginfo("handlers[%d].status == %s", i, status)
 
     # Prints out the result of executing the action
     return handlers[0].get_result()  # A FibonacciResult
