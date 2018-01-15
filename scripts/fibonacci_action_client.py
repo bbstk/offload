@@ -31,18 +31,19 @@ def fibonacci_client_single_server(n, repetitions):
         handlers.append(client.send_goal(goal))
         # wait for the goal to be received
         while handlers[i].get_goal_status() == GoalStatus.PENDING:
+            rospy.sleep(0.2)
             continue
 
     rospy.loginfo("handlers len: %d", len(handlers))
 
     # Wait until each handler return successfully
     for i in range(0, repetitions):
-        status = handlers[i].get_goal_status()
-        rospy.loginfo("handlers[%d].status == %s", i, status)
-        while status != GoalStatus.SUCCEEDED:
+        #status = handlers[i].get_goal_status()
+        #rospy.loginfo("handlers[%d].status == %s", i, status)
+        while handlers[i].get_goal_status() != GoalStatus.SUCCEEDED:
             rospy.sleep(0.2)
-            status = handlers[i].get_goal_status()
-            rospy.loginfo("handlers[%d].status == %s", i, status)
+            #status = handlers[i].get_goal_status()
+           # rospy.loginfo("handlers[%d].status == %s", i, status)
 
     # Prints out the result of executing the action
     return handlers[0].get_result()  # A FibonacciResult
@@ -51,7 +52,7 @@ def fibonacci_client_round_robin_server(n, repetitions):
     # Create the clients
     clients = []
     for address in node_addresses:
-        clients.append(actionlib.ActionClient(address, offload.msg.FibonacciAction))
+        clients.append(actionlib.ActionClient('fib_server_' + address, offload.msg.FibonacciAction))
 
     # Wait for the servers
     for client in clients:
@@ -67,8 +68,9 @@ def fibonacci_client_round_robin_server(n, repetitions):
     # Send the requests in round robin fashion
     for i in range(0, repetitions):
         handlers.append(clients[i%len(clients)].send_goal(goal))
-        # wait for the goal to be received
-        while handlers[i].get_goal_status() == GoalStatus.PENDING:
+        # wait for the goal from the same client to be received
+        while i >= len(clients) - 1 and handlers[i + 1 -len(clients)].get_goal_status() == GoalStatus.PENDING:
+            rospy.sleep(0.2)
             continue
     sendEnd = time()
     rospy.loginfo("Sent all goals in %d seconds", sendEnd - sendStart)
@@ -77,9 +79,8 @@ def fibonacci_client_round_robin_server(n, repetitions):
     # Wait until each handler return successfully
     for i in range(0, repetitions):
         while handlers[i].get_goal_status() != GoalStatus.SUCCEEDED:
-            rospy.loginfo("handlers[%d].status == %s", i, handlers[i].get_goal_status())
+            #rospy.loginfo("handlers[%d].status == %s", i, handlers[i].get_goal_status())
             rospy.sleep(0.2)
-            continue
 
     # Prints out the result of executing the action
     return handlers[0].get_result()  # A FibonacciResult
