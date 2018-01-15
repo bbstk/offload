@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 from __future__ import print_function
+from time import time
 import rospy
 import sys
 import socket
@@ -62,12 +63,16 @@ def fibonacci_client_round_robin_server(n, repetitions):
     # Create list to store the ClientActionHandlers
     handlers = []
 
+    sendStart = time()
     # Send the requests in round robin fashion
     for i in range(0, repetitions):
         handlers.append(clients[i%len(clients)].send_goal(goal))
         # wait for the goal to be received
         while handlers[i].get_goal_status() == GoalStatus.PENDING:
             continue
+    sendEnd = time()
+    rospy.loginfo("Sent all goals in %d seconds", sendEnd - sendStart)
+
 
     # Wait until each handler return successfully
     for i in range(0, repetitions):
