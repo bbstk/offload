@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from threading import Thread
+from time import time
 
 import rospy
 import actionlib
@@ -34,8 +35,9 @@ class FibonacciAction(object):
 
             result = offload.msg.FibonacciResult()
             result.result = finalResult
-
+            
             if status == actionlib.GoalStatus.ACTIVE:
+
                 goalHandle.set_succeeded(result)
             elif status == actionlib.GoalStatus.PREEMPTED:
                 goalHandle.set_preempted(result)
@@ -43,10 +45,14 @@ class FibonacciAction(object):
                 goalHandle.set_canceled(result)
         
         def calculateFibonacci(goalHandle, statusCB, doneCB):
+            start = time()
             goal = goalHandle.get_goal()
-            rospy.loginfo('%s: Executing, creating fibonacci sequence of order %i' % (self._action_name, goal.order))
+            rospy.loginfo('%s: Calculating fibonacci of order %i' % (self._action_name, goal.order))
             # Return the result from the recursive fib() function
-            doneCB(fib(goal.order))
+            result = fib(goal.order)
+            end = time()
+            rospy.loginfo('%s: Calculated fibonacci of order %i in %d seconds' % (self._action_name, goal.order, end-start))
+            doneCB(result)
 
         def fib(n):
            if n == 1:

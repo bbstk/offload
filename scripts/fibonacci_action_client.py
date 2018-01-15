@@ -36,8 +36,9 @@ def fibonacci_client_single_server(n, repetitions):
 
     # Wait until each handler return successfully
     for i in range(0, repetitions):
-        while handlers[i].get_goal_status() != GoalStatus.SUCCEEDED:
-            rospy.loginfo("handlers[%d].status == %s", i, handlers[i].get_goal_status())
+        status = handlers[i].get_goal_status()
+        rospy.loginfo("handlers[%d].status == %s", i, status)
+        while status != GoalStatus.SUCCEEDED:
             rospy.sleep(0.2)
             continue
 
