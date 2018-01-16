@@ -7,7 +7,7 @@ import psutil
 def reportStats():
     pub = rospy.Publisher('stats_' + socket.gethostname(), offload.msg.SystemStats)
     rospy.init_node('stats_publisher_' + socket.gethostname(), anonymous=True)
-    rate = rospy.Rate(0.5) # 10hz
+    rate = rospy.Rate(0.1) # 10hz
     while not rospy.is_shutdown():
         msg = offload.msg.SystemStats()
         msg.cpuUsage = psutil.cpu_percent(interval=1)
