@@ -5,35 +5,35 @@ from offload.srv import *
 
 import socket
 
-def callback(data):
-    start = time()
-    result = fib(data.data)
-    end = time()
-    rospy.loginfo(rospy.get_caller_id() + "| Fib(%d) is %d and it took me %d seconds to calculate", data.data, result, end-start)
-    
-def fib_solver():
-    rospy.init_node('fib_solver', anonymous=True)
-
-    rospy.Subscriber("fib_tasks", UInt32, callback)
-
-    rospy.spin()
-
-class Blackboard(object):
+class BlackboardCls:
     stats = {}
-
+    subscribers = []
     def __init__(self, nodes):
         for node in nodes:
-          self.Subscribers.append(rospy.Subscriber("stats_" + node, offload.msg.SystemStats, self.record_stats, (node)))
+          self.subscribers.append(rospy.Subscriber("stats_" + node, offload.msg.SystemStats, self.record_stats, (node)))
         self.reporter = rospy.Service('stats_reporter_' + socket.gethostname(), Blackboard, self.report)
     
-    def record_stats(data, node_name):
-      stats[node_name] = data
+    def record_stats(self, data, node_name):
+      #rospy.loginfo("Storing data for %s", node_name)
+      to_store = offload.msg.SystemStats()
+      to_store.cpuUsage = data.cpuUsage
+      to_store.availableMemory = data.availableMemory
+      self.stats[node_name] = to_store
 
-    def report(node_name):
-      return stats[node_name]
+    def report(self, request):
+      node_name = request.nodeName
+      #rospy.loginfo("Data requested for %r", node_name)
+      #Default response is an infinitely busy system
+      default = offload.msg.SystemStats()
+      default.cpuUsage = 100.0
+      default.availableMemory = 0
+      resp = offload.msg.SystemStats()
+      resp.cpuUsage = self.stats.get(node_name, default).cpuUsage
+      resp.availableMemory = self.stats.get(node_name, default).availableMemory
+      return resp
 
 if __name__ == '__main__':
     nodes = ['pi1', 'pi2', 'virtualpi1']
     rospy.init_node('blackboard_' + socket.gethostname())
-    server = Blackboard(nodes)
+    server = BlackboardCls(nodes)
     rospy.spin()

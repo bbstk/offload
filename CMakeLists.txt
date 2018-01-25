@@ -59,6 +59,7 @@ add_message_files(
 add_service_files(
   FILES
   FibSolver.srv
+  Blackboard.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -165,6 +166,9 @@ install(PROGRAMS
   scripts/fibonacci_server.py
   scripts/fibonacci_client.py
   scripts/fibonacci_action_server.py
+  scripts/fibonacci_action_client.py
+  scripts/sys_stats_publisher.py
+  scripts/blackboard.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

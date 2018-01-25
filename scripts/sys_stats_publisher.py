@@ -7,12 +7,12 @@ import psutil
 def reportStats():
     pub = rospy.Publisher('stats_' + socket.gethostname(), offload.msg.SystemStats)
     rospy.init_node('stats_publisher_' + socket.gethostname(), anonymous=True)
-    rate = rospy.Rate(0.1) # 10hz
+    rate = rospy.Rate(0.1)
     while not rospy.is_shutdown():
         msg = offload.msg.SystemStats()
         msg.cpuUsage = psutil.cpu_percent(interval=1)
         msg.availableMemory = (psutil.virtual_memory().available) / 1024 / 1024
-        rospy.loginfo(msg)
+        #rospy.loginfo(msg)
         pub.publish(msg)
         rate.sleep()
 
