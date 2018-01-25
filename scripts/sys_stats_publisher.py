@@ -10,6 +10,7 @@ def reportStats():
     rate = rospy.Rate(0.1)
     while not rospy.is_shutdown():
         msg = offload.msg.SystemStats()
+        msg.name = socket.gethostname()
         msg.cpuUsage = psutil.cpu_percent(interval=1)
         msg.availableMemory = (psutil.virtual_memory().available) / 1024 / 1024
         #rospy.loginfo(msg)

@@ -16,6 +16,7 @@ class BlackboardCls:
     def record_stats(self, data, node_name):
       #rospy.loginfo("Storing data for %s", node_name)
       to_store = offload.msg.SystemStats()
+      to_store.name = data.name
       to_store.cpuUsage = data.cpuUsage
       to_store.availableMemory = data.availableMemory
       self.stats[node_name] = to_store
@@ -27,9 +28,17 @@ class BlackboardCls:
       default = offload.msg.SystemStats()
       default.cpuUsage = 100.0
       default.availableMemory = 0
-      resp = offload.msg.SystemStats()
-      resp.cpuUsage = self.stats.get(node_name, default).cpuUsage
-      resp.availableMemory = self.stats.get(node_name, default).availableMemory
+      resp = offload.srv.BlackboardResponse()
+      i = 0
+      for key, value in self.stats.items():
+        resp.result.append(offload.msg.SystemStats())
+        resp.result[i].name = value.name
+        resp.result[i].cpuUsage = value.cpuUsage
+        resp.result[i].availableMemory = value.availableMemory
+        i = i + 1    
+      #resp = offload.msg.SystemStats()
+      #resp.cpuUsage = self.stats.get(node_name, default).cpuUsage
+      #resp.availableMemory = self.stats.get(node_name, default).availableMemory
       return resp
 
 if __name__ == '__main__':
