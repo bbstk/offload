@@ -10,7 +10,7 @@ class BlackboardCls:
     subscribers = []
     def __init__(self, nodes):
         for node in nodes:
-          self.subscribers.append(rospy.Subscriber("stats_" + node, offload.msg.SystemStats, self.record_stats, (node)))
+          self.subscribers.append(rospy.Subscriber("stats_" + node, offload.msg.SystemStats, self.record_stats, (node), queue_size=10))
         self.reporter = rospy.Service('stats_reporter_' + socket.gethostname(), Blackboard, self.report)
     
     def record_stats(self, data, node_name):
