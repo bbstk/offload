@@ -85,6 +85,31 @@ def fibonacci_client_round_robin_server(n, repetitions):
     # Prints out the result of executing the action
     return handlers[0].get_result()  # A FibonacciResult
 
+def fibonacci_client_amp_server(n, repetitions):
+    # Create the AutonomousActionClient
+    aac = AutonomousActionClient(offload.msg.FibonacciAction)
+
+    # Create the goal
+    goal = offload.msg.FibonacciGoal(order=n)
+
+    handlers = []
+
+    sendStart = time()
+    # Send the requests using the autonomous action client
+    for i in range(0, repetitions):
+        handlers.append(aac.send_goal(goal))
+    sendEnd = time()
+    rospy.loginfo("Sent all goals in %d seconds", sendEnd - sendStart)
+
+    # Wait until each handler return successfully
+    for i in range(0, repetitions):
+        while handlers[i].get_goal_status() != GoalStatus.SUCCEEDED:
+            #rospy.loginfo("handlers[%d].status == %s", i, handlers[i].get_goal_status())
+            rospy.sleep(0.2)
+
+    # Prints out the result of executing the action
+    return handlers[0].get_result()  # A FibonacciResult
+
 def usage():
     return "%s [n] [repetitions] [single|rr|amp]"%sys.argv[0]
 
@@ -106,8 +131,7 @@ if __name__ == '__main__':
         elif mode == 'rr':
             result = fibonacci_client_round_robin_server(n, repetitions)
         elif mode == 'amp':
-            print ('Not implemented')
-            sys.exit(1)
+            result = fibonacci_client_amp_server(n, repetitions)
         else:
             print (usage())
             sys.exit(1)
