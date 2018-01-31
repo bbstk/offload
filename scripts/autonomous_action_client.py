@@ -3,6 +3,7 @@ import rospy
 import actionlib
 from actionlib_msgs.msg import *
 from offload.srv import *
+import offload.msg
 import socket
 
 class AutonomousActionClient:
@@ -37,5 +38,15 @@ class AutonomousActionClient:
 def best_server(goal):
     blackboard = rospy.ServiceProxy('stats_reporter_' + socket.gethostname(), Blackboard)
     load_info = blackboard("")
+    
     rospy.loginfo("Load info %r", load_info)
-    return "fib_server_virtualpi1"
+
+    current_best = offload.msg.SystemStats()
+    current_best.name = "fib_server_" + socket.gethostname()
+    current_best.cpuUsage = 100.0
+    current_best.availableMemory = 0
+
+    for node in load_info:
+        if node.cpuUsage < current_best.cpuUsage:
+            current_best = node.deepcopy()
+    return "fib_server_" + current_best.name
