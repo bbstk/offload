@@ -27,7 +27,8 @@ class AutonomousActionClient:
     def send_goal(self, goal, transition_cb = None, feedback_cb = None):
         # get best action server to use
         server_to_use = best_server(goal)
-        #TODO: store clients in a map? so that you dont create a new one every time. (Client pool?)
+        rospy.loginfo("Best server name: " + server_to_use)
+	#TODO: store clients in a map? so that you dont create a new one every time. (Client pool?)
         client = actionlib.ActionClient(server_to_use, self.action_spec)
         #TODO: wait a certain amount, if timeout -> send to another server
         client.wait_for_server()
@@ -42,11 +43,13 @@ def best_server(goal):
     rospy.loginfo("Load info %r", load_info)
 
     current_best = offload.msg.SystemStats()
-    current_best.name = "fib_server_" + socket.gethostname()
-    current_best.cpuUsage = 100.0
+    current_best.name = socket.gethostname()
+    current_best.cpuUsage = 900.0
     current_best.availableMemory = 0
 
-    for node in load_info:
+    for node in load_info.result:
         if node.cpuUsage < current_best.cpuUsage:
-            current_best = node.deepcopy()
+            current_best.name = node.name
+            current_best.cpuUsage = node.cpuUsage
+            current_best.availableMemory = node.availableMemory
     return "fib_server_" + current_best.name
