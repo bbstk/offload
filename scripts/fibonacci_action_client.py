@@ -8,6 +8,7 @@ import socket
 import actionlib
 from actionlib_msgs.msg import *
 import offload.msg
+from autonomous_action_client import AutonomousActionClient
 
 node_addresses = ['pi1', 'pi2', 'virtualpi1']
 

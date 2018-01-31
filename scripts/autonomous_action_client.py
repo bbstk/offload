@@ -2,6 +2,7 @@
 import rospy
 import actionlib
 from actionlib_msgs.msg import *
+from offload.srv import *
 import socket
 
 class AutonomousActionClient:
@@ -37,4 +38,4 @@ def best_server(goal):
     blackboard = rospy.ServiceProxy('stats_reporter_' + socket.gethostname(), Blackboard)
     load_info = blackboard("")
     rospy.loginfo("Load info %r", load_info)
-    return "virtualpi1"
+    return "fib_server_virtualpi1"
