@@ -42,7 +42,7 @@ class BlackboardCls:
       return resp
 
 if __name__ == '__main__':
-    nodes = ['pi1', 'pi2', 'virtualpi1']
+    nodes = ['pi1', 'pi2','pi3','pi4','pi5','virtualpi1']
     rospy.init_node('blackboard_' + socket.gethostname())
     server = BlackboardCls(nodes)
     rospy.spin()
