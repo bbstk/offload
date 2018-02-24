@@ -38,6 +38,7 @@ class AutonomousActionClient:
 
 fibPerformanceMap = {
   32:{
+      0: 14.1,
       25: 14.2,
       50: 14.3,
       75: 15.6,
@@ -51,9 +52,9 @@ def best_server(goal):
     blackboard = rospy.ServiceProxy('stats_reporter_' + socket.gethostname(), Blackboard)
     load_info = blackboard("")
 
-    rospy.loginfo("Load info %r", load_info)
+#    rospy.loginfo("Load info %r", load_info)
 
-    current_node = socket.gethostname();
+    current_node = socket.gethostname()
 
     current_best = {}
     current_best["name"] = socket.gethostname()
@@ -63,9 +64,9 @@ def best_server(goal):
     # current_best.name = socket.gethostname()
     # current_best.cpuUsage = 900.0
     # current_best.availableMemory = 0
-
+ #   rospy.loginfo(goal)
     for node in load_info.result:
-        timeComp = fibPerformerMap[goal.order][math.ceil(node.cpuUsage / 25.0) * 25]
+        timeComp = fibPerformanceMap[goal.order][int(math.ceil(node.cpuUsage / 25.0) * 25)]
         rospy.loginfo(node.name)
         rospy.loginfo(timeComp)
         timeComm = 0;
