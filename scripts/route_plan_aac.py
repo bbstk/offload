@@ -6,6 +6,7 @@ from offload.srv import *
 import offload.msg
 import socket
 import math
+import random
 
 class RoutePlanAutonomousActionClient:
     def __init__(self, ActionSpec):
@@ -74,7 +75,7 @@ def best_server(goal):
         #     timeComm = 0.006;
         # timeTotal = timeComp + timeComm
         busyCores = 100/int(math.ceil(node.cpuUsage / 25.0) * 25)
-        if timeTotal < current_best["timeTotal"]:
+        if busyCores < current_best["busyCores"] or (busyCores == current_best["busyCores"] and random.randint(0,1) == 1):
             current_best["name"] = node.name
             current_best["busyCores"] = busyCores
 
