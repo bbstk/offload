@@ -170,6 +170,9 @@ install(PROGRAMS
   scripts/fibonacci_action_client.py
   scripts/sys_stats_publisher.py
   scripts/blackboard.py
+  scripts/route_plan_client.py
+  scripts/route_plan_server.py
+  scripts/autonomous_action_client.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
