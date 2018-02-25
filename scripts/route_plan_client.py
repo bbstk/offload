@@ -8,7 +8,7 @@ import socket
 import actionlib
 from actionlib_msgs.msg import *
 import offload.msg
-from autonomous_action_client import AutonomousActionClient
+from route_plan_aac import RoutePlanAutonomousActionClient
 
 node_addresses = ['pi1', 'pi2', 'pi3', 'pi4', 'pi5']
 
@@ -22,8 +22,8 @@ def single_server(cX, cY, tX, tY, steps):
 
     return handler.get_result()
 
-def fibonacci_client_amp_server(n, repetitions):
-    aac = AutonomousActionClient(offload.msg.RoutePlanAction)
+def amp_server(cX, cY, tX, tY, steps):
+    aac = RoutePlanAutonomousActionClient(offload.msg.RoutePlanAction)
     goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
 
     sendStart = time()
@@ -55,8 +55,6 @@ if __name__ == '__main__':
         result = []
         if mode == 'single':
             result = single_server(cX, cY, tX, tY, steps)
-        elif mode == 'rr':
-            result = round_robin_server(cX, cY, tX, tY, steps)
         elif mode == 'amp':
             result = amp_server(cX, cY, tX, tY, steps)
         else:
