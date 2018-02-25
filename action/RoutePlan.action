@@ -1,0 +1,12 @@
+#goal definition
+int32 cX
+int32 cY
+int32 tX
+int32 tY
+int32 steps
+---
+#result definition
+string result
+---
+#feedback
+int32 currentShortestRoute
