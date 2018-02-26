@@ -22,6 +22,16 @@ def single_server(cX, cY, tX, tY, steps):
 
     return handler.get_result()
 
+def specific_server(cX, cY, tX, tY, steps, server):
+    client = actionlib.ActionClient('route_planner_' + server, offload.msg.RoutePlanAction)
+    client.wait_for_server()
+    goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
+    handler = client.send_goal(goal)
+    while handler.get_goal_status() != GoalStatus.SUCCEEDED:
+        rospy.sleep(0.2)
+
+    return handler.get_result()
+
 def amp_server(cX, cY, tX, tY, steps):
     aac = RoutePlanAutonomousActionClient(offload.msg.RoutePlanAction)
     goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
@@ -37,7 +47,7 @@ def amp_server(cX, cY, tX, tY, steps):
     return handler.get_result() 
 
 def usage():
-    return "%s [cX] [xY] [tX] [tY] [steps] [single|amp]"%sys.argv[0]
+    return "%s [cX] [xY] [tX] [tY] [steps] [single|amp|specific {server name}]"%sys.argv[0]
 
 if __name__ == '__main__':
     if len(sys.argv) == 7 and sys.argv[6] in ['single', 'amp']:
@@ -47,6 +57,14 @@ if __name__ == '__main__':
         tY = int(sys.argv[4])
         steps = int(sys.argv[5])
         mode = sys.argv[6]
+    elif len(sys.argv) == 8 and sys.argv[6] in ['specific']:
+        cX = int(sys.argv[1])
+        cY = int(sys.argv[2])
+        tX = int(sys.argv[3])
+        tY = int(sys.argv[4])
+        steps = int(sys.argv[5])
+        mode = sys.argv[6]
+        server = sys.argv[7]
     else:
         print (usage())
         sys.exit(1)
@@ -57,6 +75,8 @@ if __name__ == '__main__':
             result = single_server(cX, cY, tX, tY, steps)
         elif mode == 'amp':
             result = amp_server(cX, cY, tX, tY, steps)
+        elif mode == 'specific':
+            result = specific_server(cX, cY, tX, tY, steps, server)
         else:
             print (usage())
             sys.exit(1)
