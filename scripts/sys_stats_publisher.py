@@ -5,9 +5,9 @@ import socket
 import psutil
 
 def reportStats():
-    pub = rospy.Publisher('stats_' + socket.gethostname(), offload.msg.SystemStats, queue_size=10)
+    pub = rospy.Publisher('stats_' + socket.gethostname(), offload.msg.SystemStats, queue_size=1)
     rospy.init_node('stats_publisher_' + socket.gethostname(), anonymous=True)
-    rate = rospy.Rate(0.1)
+    rate = rospy.Rate(0.5)
     while not rospy.is_shutdown():
         msg = offload.msg.SystemStats()
         msg.name = socket.gethostname()
