@@ -4,6 +4,7 @@ from time import time
 import rospy
 import sys
 import socket
+import threading
 
 import actionlib
 from actionlib_msgs.msg import *
@@ -46,11 +47,36 @@ def amp_server(cX, cY, tX, tY, steps):
 
     return handler.get_result() 
 
+
+ampft_done = threading.Event()
+ampft_result = ""
+
+def ampft_server(cX, cY, tX, tY, steps):
+    aac = RoutePlanAutonomousActionClientFT(offload.msg.RoutePlanAction)
+    goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
+
+    sendStart = time()
+    handler = aac.send_goal(goal, ampft_callback)
+    sendEnd = time()
+    rospy.loginfo("Sent all goals in %d seconds", sendEnd - sendStart)
+
+    global ampft_done
+    ampft_done.wait()
+
+    return ampft_result
+
+def ampft_callback(status, result):
+    global ampft_done
+    global ampft_result
+    ampft_result = result
+    ampft_done.set()
+
+
 def usage():
-    return "%s [cX] [xY] [tX] [tY] [steps] [single|amp|specific {server name}]"%sys.argv[0]
+    return "%s [cX] [xY] [tX] [tY] [steps] [single|amp|ampft|specific {server name}]"%sys.argv[0]
 
 if __name__ == '__main__':
-    if len(sys.argv) == 7 and sys.argv[6] in ['single', 'amp']:
+    if len(sys.argv) == 7 and sys.argv[6] in ['single', 'amp', 'ampft']:
         cX = int(sys.argv[1])
         cY = int(sys.argv[2])
         tX = int(sys.argv[3])
@@ -75,6 +101,8 @@ if __name__ == '__main__':
             result = single_server(cX, cY, tX, tY, steps)
         elif mode == 'amp':
             result = amp_server(cX, cY, tX, tY, steps)
+        elif mode == 'ampft':
+            result = ampft_server(cX, cY, tX, tY, steps)
         elif mode == 'specific':
             result = specific_server(cX, cY, tX, tY, steps, server)
         else:
