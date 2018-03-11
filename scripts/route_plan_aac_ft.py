@@ -7,10 +7,13 @@ import offload.msg
 import socket
 import math
 import random
+import os
+from threading import Thread
 
 class RoutePlanAutonomousActionClientFT:
     def __init__(self, ActionSpec):
         self.action_spec = ActionSpec
+        self.blackboard = rospy.ServiceProxy('stats_reporter_' + socket.gethostname(), BlackboardFT)
 
     ## @brief Sends a goal to the an ActionServer decided using a cost model
     ##
@@ -20,17 +23,22 @@ class RoutePlanAutonomousActionClientFT:
     ## The callback should take 2 parameter - status code and the result
     ##
     def send_goal(self, goal, done_cb = None):
+        self.is_done = False
+        self.goal = goal
         self.done_cb = done_cb
         # get best action server to use
         self.server_to_use = best_server(goal)
         rospy.loginfo("Best server name: " + self.server_to_use)
-        self.client = actionlib.SimpleActionClient(self.server_to_use, self.action_spec)
+        self.client = actionlib.SimpleActionClient("route_planner_" + self.server_to_use, self.action_spec)
         #TODO: wait a certain amount, if timeout -> send to another server
         self.client.wait_for_server()
         self.client.send_goal(goal = goal, done_cb = self._handle_transition)
+        Thread(target=self._ping_server).start()
+
 
     def _handle_transition(self, status, result):
-	rospy.loginfo("Calling done cb")
+	    rospy.loginfo("Calling done cb")
+        self.is_done = True
         self.done_cb(status, result)
         #comm_state = gh.get_comm_state()
         #rospy.loginfo(comm_state)
@@ -38,12 +46,20 @@ class RoutePlanAutonomousActionClientFT:
          #   if self.done_cb:
           #      self.done_cb(gh.get_goal_status(), gh.get_result())
 
+    def _ping_server():
+        while not self.is_done:
+            rospy.sleep(2)
+            response = os.system("ping -c 1 -w2 " + self.server_to_use + " > /dev/null 2>&1")
+            if response != 0:
+                self.blackboard(self.server_to_use, True)
+                self.send_goal(self.goal, self.done_cb)
+                return
+
 
 
 # return the best server to use for a specific goal
 def best_server(goal):
-    blackboard = rospy.ServiceProxy('stats_reporter_' + socket.gethostname(), Blackboard)
-    load_info = blackboard("")
+    load_info = self.blackboard("",False)
 
 #    rospy.loginfo("Load info %r", load_info)
 
@@ -79,4 +95,4 @@ def best_server(goal):
             current_best["name"] = node.name
             current_best["timeTotal"] = timeTotal
 
-    return "route_planner_" + current_best["name"]
+    return current_best["name"]

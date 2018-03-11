@@ -60,6 +60,7 @@ add_service_files(
   FILES
   FibSolver.srv
   Blackboard.srv
+  BlackboardFT.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -175,6 +176,7 @@ install(PROGRAMS
   scripts/autonomous_action_client.py
   scripts/route_plan_aac.py
   scripts/route_plan_aac_ft.py
+  scripts/blackboard_ft.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
