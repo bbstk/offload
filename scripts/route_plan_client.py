@@ -10,6 +10,7 @@ import actionlib
 from actionlib_msgs.msg import *
 import offload.msg
 from route_plan_aac import RoutePlanAutonomousActionClient
+from route_plan_aac_ft import RoutePlanAutonomousActionClientFT
 
 node_addresses = ['pi1', 'pi2', 'pi3', 'pi4', 'pi5']
 

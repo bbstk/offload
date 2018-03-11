@@ -174,6 +174,7 @@ install(PROGRAMS
   scripts/route_plan_server.py
   scripts/autonomous_action_client.py
   scripts/route_plan_aac.py
+  scripts/route_plan_aac_ft.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

@@ -23,18 +23,20 @@ class RoutePlanAutonomousActionClientFT:
         self.done_cb = done_cb
         # get best action server to use
         self.server_to_use = best_server(goal)
-        rospy.loginfo("Best server name: " + server_to_use)
-        self.client = actionlib.ActionClient(server_to_use, self.action_spec)
+        rospy.loginfo("Best server name: " + self.server_to_use)
+        self.client = actionlib.SimpleActionClient(self.server_to_use, self.action_spec)
         #TODO: wait a certain amount, if timeout -> send to another server
         self.client.wait_for_server()
-        self.client.send_goal(goal, transition_cb=self._handle_transition)
+        self.client.send_goal(goal = goal, done_cb = self._handle_transition)
 
-    def _handle_transition(self, gh):
-        comm_state = gh.get_comm_state()
-        rospy.loginfo(comm_state)
-        if comm_state == CommState.DONE:
-            if self.done_cb:
-                self.done_cb(gh.get_goal_status(), gh.get_result())
+    def _handle_transition(self, status, result):
+	rospy.loginfo("Calling done cb")
+        self.done_cb(status, result)
+        #comm_state = gh.get_comm_state()
+        #rospy.loginfo(comm_state)
+        #if comm_state == CommState.DONE:
+         #   if self.done_cb:
+          #      self.done_cb(gh.get_goal_status(), gh.get_result())
 
 
 
