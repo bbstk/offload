@@ -11,7 +11,7 @@ class BlackboardFTCls:
     def __init__(self, nodes):
         for node in nodes:
           self.subscribers.append(rospy.Subscriber("stats_" + node, offload.msg.SystemStats, self.record_stats, (node), queue_size=10))
-        self.reporter = rospy.Service('stats_reporter_' + socket.gethostname(), BlackboardFT, self.report)
+        self.reporter = rospy.Service('blackboard_ft_' + socket.gethostname(), BlackboardFT, self.report)
     
     def record_stats(self, data, node_name):
       #rospy.loginfo("Storing data for %s", node_name)
@@ -44,6 +44,6 @@ class BlackboardFTCls:
 
 if __name__ == '__main__':
     nodes = ['pi1', 'pi2','pi3','pi4','pi5','virtualpi1']
-    rospy.init_node('blackboard_' + socket.gethostname())
+    rospy.init_node('blackboard_ft_' + socket.gethostname())
     server = BlackboardFTCls(nodes)
     rospy.spin()

@@ -13,7 +13,7 @@ from threading import Thread
 class RoutePlanAutonomousActionClientFT:
     def __init__(self, ActionSpec):
         self.action_spec = ActionSpec
-        self.blackboard = rospy.ServiceProxy('stats_reporter_' + socket.gethostname(), BlackboardFT)
+        self.blackboard = rospy.ServiceProxy('blackboard_ft_' + socket.gethostname(), BlackboardFT)
 
     ## @brief Sends a goal to the an ActionServer decided using a cost model
     ##
@@ -37,7 +37,7 @@ class RoutePlanAutonomousActionClientFT:
 
 
     def _handle_transition(self, status, result):
-	    rospy.loginfo("Calling done cb")
+	rospy.loginfo("Calling done cb")
         self.is_done = True
         self.done_cb(status, result)
         #comm_state = gh.get_comm_state()
