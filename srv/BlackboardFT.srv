@@ -1,4 +1,4 @@
 string nodeName
-boolean remove
+bool remove
 ---
 SystemStats[] result
