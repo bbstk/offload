@@ -23,10 +23,13 @@ class BlackboardFTCls:
 
     def report(self, request):
       node_name = request.nodeName
-      remove = request.remove
+      action = request.action
       resp = offload.srv.BlackboardFTResponse()
-      if remove:
-        del self.stats[node_name]
+      if action == "remove":
+        self.stats.pop(node_name, None)
+      elif action == "add":
+        if node_name in self.stats:
+          self.stats[node_name].cpuUsage += request.cpuUsage
       default = offload.msg.SystemStats()
       default.cpuUsage = 100.0
       default.availableMemory = 0      

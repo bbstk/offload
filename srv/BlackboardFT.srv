@@ -1,4 +1,5 @@
 string nodeName
-bool remove
+string action
+float32 cpuUsage
 ---
 SystemStats[] result

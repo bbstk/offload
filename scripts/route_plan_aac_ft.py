@@ -33,6 +33,7 @@ class RoutePlanAutonomousActionClientFT:
         #TODO: wait a certain amount, if timeout -> send to another server
         self.client.wait_for_server()
         self.client.send_goal(goal = goal, done_cb = self._handle_transition)
+        self.blackboard(self.server_to_use,"add",25)
         Thread(target=self._ping_server).start()
 
 
@@ -51,13 +52,13 @@ class RoutePlanAutonomousActionClientFT:
             rospy.sleep(2)
             response = os.system("ping -c 1 -w2 " + self.server_to_use + " > /dev/null 2>&1")
             if response != 0:
-                self.blackboard(self.server_to_use, True)
+                self.blackboard(self.server_to_use, "remove", 0)
                 self.send_goal(self.goal, self.done_cb)
                 return
 
     # return the best server to use for a specific goal
     def _best_server(self, goal):
-        load_info = self.blackboard("",False)
+        load_info = self.blackboard("","get",0)
 
     #    rospy.loginfo("Load info %r", load_info)
 

@@ -50,7 +50,7 @@ class RoutePlanServer(object):
             rospy.loginfo('%s: Calculating shortest path from (%i,%i) to (%i,%i)' % (self._action_name, goal.cX, goal.cY, goal.tX, goal.tY))
 
             subprocess.call("mzn2fzn /home/ubuntu/route-finder-cp/route-finder.mzn /home/ubuntu/route-finder-cp/data.dzn -D\"steps=%d;cX=%d;cY=%d;tX=%d;tY=%d\" -o %f.fzn"%(goal.steps, goal.cX, goal.cY, goal.tX, goal.tY, start), shell=True)
-            result = subprocess.check_output("fzn-gecode -p 4 %f.fzn"%(start),shell=True)
+            result = subprocess.check_output("fzn-gecode -p 1 %f.fzn"%(start),shell=True)
             
             end = time()
             rospy.loginfo('%s: Calculating shortest path from (%i,%i) to (%i,%i) in %d seconds' % (self._action_name, goal.cX, goal.cY, goal.tX, goal.tY, end-start))
