@@ -46,7 +46,7 @@ class RoutePlanAutonomousActionClientFT:
          #   if self.done_cb:
           #      self.done_cb(gh.get_goal_status(), gh.get_result())
 
-    def _ping_server():
+    def _ping_server(self):
         while not self.is_done:
             rospy.sleep(2)
             response = os.system("ping -c 1 -w2 " + self.server_to_use + " > /dev/null 2>&1")
@@ -56,7 +56,7 @@ class RoutePlanAutonomousActionClientFT:
                 return
 
     # return the best server to use for a specific goal
-    def _best_server(goal):
+    def _best_server(self, goal):
         load_info = self.blackboard("",False)
 
     #    rospy.loginfo("Load info %r", load_info)
@@ -81,13 +81,13 @@ class RoutePlanAutonomousActionClientFT:
             rospy.loginfo("cpu usage: %f"%(node.cpuUsage))
         # rospy.loginfo(timeComp)
             timeComp = 10 + 0.1 * int(math.ceil(node.cpuUsage / 10.0) * 10)
-        timeComm = 0;
+            timeComm = 0;
             if node.name != current_node:
                 timeComm = 0.006;
             timeTotal = timeComp + timeComm
     #        busyCores = 100/int(math.ceil(node.cpuUsage / 25.0) * 25)
     #	rospy.loginfo("busy cores: %d"%(busyCores))
-        rospy.loginfo("time total: %f"%(timeTotal)) 
+            rospy.loginfo("time total: %f"%(timeTotal)) 
             if timeTotal < current_best["timeTotal"]:# or (timeTotal == current_best["timeTotal"] and random.randint(0,1) == 1):
     #	if busyCores < current_best["busyCores"] or (busyCores == current_best["busyCores"] and random.randint(0,1) == 1):
                 current_best["name"] = node.name

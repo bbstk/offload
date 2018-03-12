@@ -24,11 +24,9 @@ class BlackboardFTCls:
     def report(self, request):
       node_name = request.nodeName
       remove = request.remove
-      resp = offload.srv.BlackboardResponse()
-
+      resp = offload.srv.BlackboardFTResponse()
       if remove:
         del self.stats[node_name]
-
       default = offload.msg.SystemStats()
       default.cpuUsage = 100.0
       default.availableMemory = 0      
@@ -39,7 +37,7 @@ class BlackboardFTCls:
         resp.result[i].cpuUsage = value.cpuUsage
         resp.result[i].availableMemory = value.availableMemory
         i = i + 1    
-
+      rospy.loginfo(resp)
       return resp
 
 if __name__ == '__main__':
