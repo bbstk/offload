@@ -49,11 +49,14 @@ class RoutePlanAutonomousActionClientFT:
 
     def _ping_server(self):
         while not self.is_done:
-            rospy.sleep(2)
+            rospy.sleep(5)
             response = os.system("ping -c 1 -w2 " + self.server_to_use + " > /dev/null 2>&1")
             if response != 0:
                 self.blackboard(self.server_to_use, "remove", 0)
-                self.send_goal(self.goal, self.done_cb)
+                # random timeout to prevent overloading a single robot after a failure
+		timeout = random.randint(1,10)
+		rospy.sleep(timeout)
+		self.send_goal(self.goal, self.done_cb)
                 return
 
     # return the best server to use for a specific goal
@@ -83,8 +86,8 @@ class RoutePlanAutonomousActionClientFT:
         # rospy.loginfo(timeComp)
             timeComp = 10 + 0.1 * int(math.ceil(node.cpuUsage / 10.0) * 10)
             timeComm = 0;
-            if node.name != current_node:
-                timeComm = 0.006;
+            #if node.name != current_node:
+            #    timeComm = 0.006;
             timeTotal = timeComp + timeComm
     #        busyCores = 100/int(math.ceil(node.cpuUsage / 25.0) * 25)
     #	rospy.loginfo("busy cores: %d"%(busyCores))
