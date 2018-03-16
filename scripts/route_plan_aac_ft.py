@@ -31,7 +31,11 @@ class RoutePlanAutonomousActionClientFT:
         rospy.loginfo("Best server name: " + self.server_to_use)
         self.client = actionlib.SimpleActionClient("route_planner_" + self.server_to_use, self.action_spec)
         #TODO: wait a certain amount, if timeout -> send to another server
-        self.client.wait_for_server()
+	server_up = self.client.wait_for_server(timeout=rospy.Duration(10.0))
+        if not server_up:
+	    rospy.loginfo("Wait for server on "+ self.server_to_use + " timed out")
+            self.blackboard(self.server_to_use, "remove", 0)
+            return self.send_goal(goal=self.goal, done_cb=self.done_cb)
         self.client.send_goal(goal = goal, done_cb = self._handle_transition)
         self.blackboard(self.server_to_use,"add",25)
         Thread(target=self._ping_server).start()
@@ -51,7 +55,8 @@ class RoutePlanAutonomousActionClientFT:
         while not self.is_done:
             rospy.sleep(5)
             response = os.system("ping -c 1 -w2 " + self.server_to_use + " > /dev/null 2>&1")
-            if response != 0:
+#            rospy.loginfo("pinging server %s: %s", self.server_to_use, response)
+	    if response != 0:
                 self.blackboard(self.server_to_use, "remove", 0)
                 # random timeout to prevent overloading a single robot after a failure
 		timeout = random.randint(1,10)

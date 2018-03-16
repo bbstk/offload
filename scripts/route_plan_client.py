@@ -72,9 +72,37 @@ def ampft_callback(status, result):
     ampft_result = result
     ampft_done.set()
 
+ampft_burst_repetitions = 0
+ampft_burst_done = threading.Event()
+ampft_burst_counter = 0
+ampft_burst_lock = threading.Lock()
+
+def ampft_burst_server(cX, cY, tX, tY, steps, repetitions):
+    clients = []
+    for i in range(repetitions):
+        clients.append(RoutePlanAutonomousActionClientFT(offload.msg.RoutePlanAction))
+    goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
+
+    global ampft_burst_repetitions
+    ampft_burst_repetitions = repetitions
+
+    for i in range(repetitions):
+        clients[i].send_goal(goal, ampft_burst_callback)
+
+    global ampft_burst_done
+    ampft_burst_done.wait()
+
+def ampft_burst_callback(status, result):
+    global ampft_burst_done
+    global ampft_burst_counter
+    global ampft_burst_lock
+    with ampft_burst_lock:
+        ampft_burst_counter += 1
+        if ampft_burst_counter == ampft_burst_repetitions:
+            ampft_burst_done.set()
 
 def usage():
-    return "%s [cX] [xY] [tX] [tY] [steps] [single|amp|ampft|specific {server name}]"%sys.argv[0]
+    return "%s [cX] [xY] [tX] [tY] [steps] [single|amp|ampft|ampft_burst {repetitions}|specific {server name}]"%sys.argv[0]
 
 if __name__ == '__main__':
     if len(sys.argv) == 7 and sys.argv[6] in ['single', 'amp', 'ampft']:
@@ -84,14 +112,14 @@ if __name__ == '__main__':
         tY = int(sys.argv[4])
         steps = int(sys.argv[5])
         mode = sys.argv[6]
-    elif len(sys.argv) == 8 and sys.argv[6] in ['specific']:
+    elif len(sys.argv) == 8 and sys.argv[6] in ['specific', 'ampft_burst']:
         cX = int(sys.argv[1])
         cY = int(sys.argv[2])
         tX = int(sys.argv[3])
         tY = int(sys.argv[4])
         steps = int(sys.argv[5])
         mode = sys.argv[6]
-        server = sys.argv[7]
+        arg7 = sys.argv[7]
     else:
         print (usage())
         sys.exit(1)
@@ -104,8 +132,10 @@ if __name__ == '__main__':
             result = amp_server(cX, cY, tX, tY, steps)
         elif mode == 'ampft':
             result = ampft_server(cX, cY, tX, tY, steps)
+        elif mode == 'ampft_burst':
+            result = ampft_burst_server(cX, cY, tX, tY, steps, int(arg7))
         elif mode == 'specific':
-            result = specific_server(cX, cY, tX, tY, steps, server)
+            result = specific_server(cX, cY, tX, tY, steps, arg7)
         else:
             print (usage())
             sys.exit(1)
