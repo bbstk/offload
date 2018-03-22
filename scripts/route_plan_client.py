@@ -34,6 +34,43 @@ def specific_server(cX, cY, tX, tY, steps, server):
 
     return handler.get_result()
 
+def round_robin_server(cX, cY, tX, tY, steps, repetitions):
+    # Create the clients
+    clients = []
+    for address in node_addresses:
+        clients.append(actionlib.ActionClient('route_planner_' + address, offload.msg.RoutePlanAction))
+
+    # Wait for the servers
+    for client in clients:
+        client.wait_for_server()
+
+    # Create the goal
+    goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
+
+    # Create list to store the ClientActionHandlers
+    handlers = []
+
+    sendStart = time()
+    # Send the requests in round robin fashion
+    for i in range(0, repetitions):
+        handlers.append(clients[i%len(clients)].send_goal(goal))
+        # wait for the goal from the same client to be received
+        while i >= len(clients) - 1 and handlers[i + 1 -len(clients)].get_goal_status() == GoalStatus.PENDING:
+            rospy.sleep(0.1)
+            continue
+    sendEnd = time()
+    rospy.loginfo("Sent all goals in %d seconds", sendEnd - sendStart)
+
+
+    # Wait until each handler return successfully
+    for i in range(0, repetitions):
+        while handlers[i].get_goal_status() != GoalStatus.SUCCEEDED:
+            #rospy.loginfo("handlers[%d].status == %s", i, handlers[i].get_goal_status())
+            rospy.sleep(0.2)
+
+    # Prints out the result of executing the action
+    return handlers[0].get_result()  # A FibonacciResult
+
 def amp_server(cX, cY, tX, tY, steps):
     aac = RoutePlanAutonomousActionClient(offload.msg.RoutePlanAction)
     goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
@@ -102,7 +139,7 @@ def ampft_burst_callback(status, result):
             ampft_burst_done.set()
 
 def usage():
-    return "%s [cX] [xY] [tX] [tY] [steps] [single|amp|ampft|ampft_burst {repetitions}|specific {server name}]"%sys.argv[0]
+    return "%s [cX] [xY] [tX] [tY] [steps] [single|amp|ampft|ampft_burst {repetitions}|specific {server name}|rr {repetitions}]"%sys.argv[0]
 
 if __name__ == '__main__':
     if len(sys.argv) == 7 and sys.argv[6] in ['single', 'amp', 'ampft']:
@@ -112,7 +149,7 @@ if __name__ == '__main__':
         tY = int(sys.argv[4])
         steps = int(sys.argv[5])
         mode = sys.argv[6]
-    elif len(sys.argv) == 8 and sys.argv[6] in ['specific', 'ampft_burst']:
+    elif len(sys.argv) == 8 and sys.argv[6] in ['specific', 'ampft_burst', 'rr']:
         cX = int(sys.argv[1])
         cY = int(sys.argv[2])
         tX = int(sys.argv[3])
@@ -136,6 +173,8 @@ if __name__ == '__main__':
             result = ampft_burst_server(cX, cY, tX, tY, steps, int(arg7))
         elif mode == 'specific':
             result = specific_server(cX, cY, tX, tY, steps, arg7)
+        elif mode == 'rr':
+            result = round_robin_server(cX, cY, tX, tY, steps, int(arg7))
         else:
             print (usage())
             sys.exit(1)
