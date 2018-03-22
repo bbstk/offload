@@ -40,7 +40,7 @@ class BlackboardFTCls:
         resp.result[i].cpuUsage = value.cpuUsage
         resp.result[i].availableMemory = value.availableMemory
         i = i + 1    
-      rospy.loginfo(resp)
+#      rospy.loginfo(resp)
       return resp
 
 if __name__ == '__main__':

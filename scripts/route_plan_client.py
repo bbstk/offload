@@ -91,6 +91,7 @@ def ampft_burst_server(cX, cY, tX, tY, steps, repetitions):
 
     global ampft_burst_done
     ampft_burst_done.wait()
+    return "done"
 
 def ampft_burst_callback(status, result):
     global ampft_burst_done
@@ -139,6 +140,6 @@ if __name__ == '__main__':
         else:
             print (usage())
             sys.exit(1)
-        print("Result: ", result.result)
+#        print("Result: ", result.result)
     except rospy.ROSInterruptException:
         print("program interrupted before completion", file=sys.stderr)

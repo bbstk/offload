@@ -86,8 +86,8 @@ class RoutePlanAutonomousActionClientFT:
         random.shuffle(load_info.result)
         for node in load_info.result:
             # timeComp = fibPerformanceMap[goal.order][int(math.ceil(node.cpuUsage / 25.0) * 25)]
-            rospy.loginfo(node.name)
-            rospy.loginfo("cpu usage: %f"%(node.cpuUsage))
+#            rospy.loginfo(node.name)
+ #           rospy.loginfo("cpu usage: %f"%(node.cpuUsage))
         # rospy.loginfo(timeComp)
             timeComp = 10 + 0.1 * int(math.ceil(node.cpuUsage / 10.0) * 10)
             timeComm = 0;
@@ -96,7 +96,7 @@ class RoutePlanAutonomousActionClientFT:
             timeTotal = timeComp + timeComm
     #        busyCores = 100/int(math.ceil(node.cpuUsage / 25.0) * 25)
     #	rospy.loginfo("busy cores: %d"%(busyCores))
-            rospy.loginfo("time total: %f"%(timeTotal)) 
+  #          rospy.loginfo("time total: %f"%(timeTotal)) 
             if timeTotal < current_best["timeTotal"]:# or (timeTotal == current_best["timeTotal"] and random.randint(0,1) == 1):
     #	if busyCores < current_best["busyCores"] or (busyCores == current_best["busyCores"] and random.randint(0,1) == 1):
                 current_best["name"] = node.name
