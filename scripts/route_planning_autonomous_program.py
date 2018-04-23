@@ -30,7 +30,7 @@ class RoutePlanningAutonomousProgram:
         self.server_to_use = self._best_server(goal)
         rospy.loginfo("Best server name: " + self.server_to_use)
         self.client = actionlib.SimpleActionClient("route_planner_" + self.server_to_use, self.action_spec)
-	    server_up = self.client.wait_for_server(timeout=rospy.Duration(10.0))
+	server_up = self.client.wait_for_server(timeout=rospy.Duration(10.0))
         if not server_up:
 	    rospy.loginfo("Wait for server on "+ self.server_to_use + " timed out")
             self.load_server(self.server_to_use, "remove", 0)
