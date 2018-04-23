@@ -11,7 +11,7 @@ import offload.msg
 
 import socket
 
-class RoutePlanServer(object):
+class RoutePlanningProgramExecutor(object):
     # create messages that are used to publish feedback/result
     # _feedback = offload.msg.FibonacciFeedback()
     # _result = offload.msg.FibonacciResult()
@@ -61,5 +61,5 @@ class RoutePlanServer(object):
 if __name__ == '__main__':
     #rospy.init_node('fibonacci')
     rospy.init_node('route_planner_' + socket.gethostname())
-    server = RoutePlanServer(rospy.get_name())
+    server = RoutePlanningProgramExecutor(rospy.get_name())
     rospy.spin()

@@ -10,10 +10,10 @@ import random
 import os
 from threading import Thread
 
-class RoutePlanAutonomousActionClientFT:
+class RoutePlanningAutonomousProgram:
     def __init__(self, ActionSpec):
         self.action_spec = ActionSpec
-        self.blackboard = rospy.ServiceProxy('blackboard_ft_' + socket.gethostname(), BlackboardFT)
+        self.load_server = rospy.ServiceProxy('load_server_' + socket.gethostname(), BlackboardFT)
 
     ## @brief Sends a goal to the an ActionServer decided using a cost model
     ##
@@ -30,14 +30,13 @@ class RoutePlanAutonomousActionClientFT:
         self.server_to_use = self._best_server(goal)
         rospy.loginfo("Best server name: " + self.server_to_use)
         self.client = actionlib.SimpleActionClient("route_planner_" + self.server_to_use, self.action_spec)
-        #TODO: wait a certain amount, if timeout -> send to another server
-	server_up = self.client.wait_for_server(timeout=rospy.Duration(10.0))
+	    server_up = self.client.wait_for_server(timeout=rospy.Duration(10.0))
         if not server_up:
 	    rospy.loginfo("Wait for server on "+ self.server_to_use + " timed out")
-            self.blackboard(self.server_to_use, "remove", 0)
+            self.load_server(self.server_to_use, "remove", 0)
             return self.send_goal(goal=self.goal, done_cb=self.done_cb)
         self.client.send_goal(goal = goal, done_cb = self._handle_transition)
-        self.blackboard(self.server_to_use,"add",25)
+        self.load_server(self.server_to_use,"add",25)
         Thread(target=self._ping_server).start()
 
 
@@ -57,7 +56,7 @@ class RoutePlanAutonomousActionClientFT:
             response = os.system("ping -c 1 -w2 " + self.server_to_use + " > /dev/null 2>&1")
 #            rospy.loginfo("pinging server %s: %s", self.server_to_use, response)
 	    if response != 0:
-                self.blackboard(self.server_to_use, "remove", 0)
+                self.load_server(self.server_to_use, "remove", 0)
                 # random timeout to prevent overloading a single robot after a failure
 		timeout = random.randint(1,10)
 		rospy.sleep(timeout)
@@ -66,7 +65,7 @@ class RoutePlanAutonomousActionClientFT:
 
     # return the best server to use for a specific goal
     def _best_server(self, goal):
-        load_info = self.blackboard("","get",0)
+        load_info = self.load_server("","get",0)
 
     #    rospy.loginfo("Load info %r", load_info)
 

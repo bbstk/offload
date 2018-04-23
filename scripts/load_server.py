@@ -5,13 +5,13 @@ from offload.srv import *
 
 import socket
 
-class BlackboardFTCls:
+class load_server:
     stats = {}
     subscribers = []
     def __init__(self, nodes):
         for node in nodes:
           self.subscribers.append(rospy.Subscriber("stats_" + node, offload.msg.SystemStats, self.record_stats, (node), queue_size=10))
-        self.reporter = rospy.Service('blackboard_ft_' + socket.gethostname(), BlackboardFT, self.report)
+        self.reporter = rospy.Service('load_server_' + socket.gethostname(), LoadServer, self.report)
     
     def record_stats(self, data, node_name):
       #rospy.loginfo("Storing data for %s", node_name)
@@ -24,7 +24,7 @@ class BlackboardFTCls:
     def report(self, request):
       node_name = request.nodeName
       action = request.action
-      resp = offload.srv.BlackboardFTResponse()
+      resp = offload.srv.LoadServerResponse()
       if action == "remove":
         self.stats.pop(node_name, None)
       elif action == "add":
@@ -45,6 +45,6 @@ class BlackboardFTCls:
 
 if __name__ == '__main__':
     nodes = ['pi1', 'pi2','pi3','pi4','pi5','virtualpi1']
-    rospy.init_node('blackboard_ft_' + socket.gethostname())
-    server = BlackboardFTCls(nodes)
+    rospy.init_node('load_server_' + socket.gethostname())
+    server = load_server(nodes)
     rospy.spin()

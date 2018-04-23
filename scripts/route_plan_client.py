@@ -10,7 +10,7 @@ import actionlib
 from actionlib_msgs.msg import *
 import offload.msg
 from route_plan_aac import RoutePlanAutonomousActionClient
-from route_plan_aac_ft import RoutePlanAutonomousActionClientFT
+from route_planning_autonomous_program import RoutePlanningAutonomousProgram
 
 node_addresses = ['pi1', 'pi2', 'pi3', 'pi4', 'pi5']
 
@@ -90,7 +90,7 @@ ampft_done = threading.Event()
 ampft_result = ""
 
 def ampft_server(cX, cY, tX, tY, steps):
-    aac = RoutePlanAutonomousActionClientFT(offload.msg.RoutePlanAction)
+    aac = RoutePlanningAutonomousProgram(offload.msg.RoutePlanAction)
     goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
 
     sendStart = time()
@@ -117,7 +117,7 @@ ampft_burst_lock = threading.Lock()
 def ampft_burst_server(cX, cY, tX, tY, steps, repetitions):
     clients = []
     for i in range(repetitions):
-        clients.append(RoutePlanAutonomousActionClientFT(offload.msg.RoutePlanAction))
+        clients.append(RoutePlanningAutonomousProgram(offload.msg.RoutePlanAction))
     goal = offload.msg.RoutePlanGoal(cX=cX, cY=cY, tX=tX, tY=tY, steps=steps)
 
     global ampft_burst_repetitions
