@@ -1,1 +1,3 @@
-A ROS package for offloading computation across different hosts
+A ROS implementation of Reliable Autonomous Programs (RAMPs)
+
+This repository contains a route planning implementation of RAMPs.
